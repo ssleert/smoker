@@ -1,0 +1,65 @@
+{
+  "version": "3",
+  "packages": {
+    "specifiers": {
+      "jsr:@std/assert@^1.0.2": "jsr:@std/assert@1.0.2",
+      "jsr:@std/dotenv": "jsr:@std/dotenv@0.225.0",
+      "jsr:@std/dotenv@^0.225.0": "jsr:@std/dotenv@0.225.0",
+      "jsr:@std/encoding@^1.0.1": "jsr:@std/encoding@1.0.1",
+      "jsr:@std/internal@^1.0.1": "jsr:@std/internal@1.0.1",
+      "jsr:@std/ulid@^1.0.0": "jsr:@std/ulid@1.0.0",
+      "npm:@hono/typebox-validator@^0.2.4": "npm:@hono/typebox-validator@0.2.4_@sinclair+typebox@0.33.4_hono@4.5.5",
+      "npm:@sinclair/typebox@^0.33.4": "npm:@sinclair/typebox@0.33.4",
+      "npm:hono@^4.5.5": "npm:hono@4.5.5"
+    },
+    "jsr": {
+      "@std/assert@1.0.2": {
+        "integrity": "ccacec332958126deaceb5c63ff8b4eaf9f5ed0eac9feccf124110435e59e49c",
+        "dependencies": [
+          "jsr:@std/internal@^1.0.1"
+        ]
+      },
+      "@std/dotenv@0.225.0": {
+        "integrity": "44db32932c67df82790a3e6847d7007befb6cc22d71f2f3ee7b7d00e1f0d6c94"
+      },
+      "@std/encoding@1.0.1": {
+        "integrity": "5955c6c542ebb4ce6587c3b548dc71e07a6c27614f1976d1d3887b1196cf4e65"
+      },
+      "@std/internal@1.0.1": {
+        "integrity": "6f8c7544d06a11dd256c8d6ba54b11ed870aac6c5aeafff499892662c57673e6"
+      },
+      "@std/ulid@1.0.0": {
+        "integrity": "d41c3d27a907714413649fee864b7cde8d42ee68437d22b79d5de4f81d808780"
+      }
+    },
+    "npm": {
+      "@hono/typebox-validator@0.2.4_@sinclair+typebox@0.33.4_hono@4.5.5": {
+        "integrity": "sha512-AsQ6Lh6qgR301qrNDsrf9DJPqBJyztjD0l6m1/QsXjuCYsKdpVdAUaSLQjsKd3fHKsC0xKH0joYHqOc9CZYyhw==",
+        "dependencies": {
+          "@sinclair/typebox": "@sinclair/typebox@0.33.4",
+          "hono": "hono@4.5.5"
+        }
+      },
+      "@sinclair/typebox@0.33.4": {
+        "integrity": "sha512-IUMFWdOtTqJ5F/rCjy2f3InRS9i4EWaCAMRsXVpUUQVi8hVByz/ifOi41Qt0Law8lz01/6zTz67vT70sB1VZbw==",
+        "dependencies": {}
+      },
+      "hono@4.5.5": {
+        "integrity": "sha512-fXBXHqaVfimWofbelLXci8pZyIwBMkDIwCa4OwZvK+xVbEyYLELVP4DfbGaj1aEM6ZY3hHgs4qLvCO2ChkhgQw==",
+        "dependencies": {}
+      }
+    }
+  },
+  "remote": {},
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/assert@^1.0.2",
+      "jsr:@std/dotenv@^0.225.0",
+      "jsr:@std/encoding@^1.0.1",
+      "jsr:@std/ulid@^1.0.0",
+      "npm:@hono/typebox-validator@^0.2.4",
+      "npm:@sinclair/typebox@^0.33.4",
+      "npm:hono@^4.5.5"
+    ]
+  }
+}
