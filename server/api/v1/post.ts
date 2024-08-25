@@ -150,9 +150,6 @@ app.get(
     const db = await getDb();
 
     const comments = await db.getComments(postUlid);
-    if (comments == null) {
-      return c.notFound();
-    }
 
     if (comments.length == 0) {
       return c.body(null, 204);
@@ -160,12 +157,12 @@ app.get(
 
     const userUlids = comments.map((c) => c.userUlid);
 
-    const commentsGraph = commentsArrayToGraph(comments);
     const users = db.getUserAvatarAndUsername(userUlids);
+    const commentsGraph = commentsArrayToGraph(comments);
 
-    return c.json({ 
-      comments: await commentsGraph, 
-      users: await users 
+    return c.json({
+      comments: await commentsGraph,
+      users: await users,
     });
   },
 );

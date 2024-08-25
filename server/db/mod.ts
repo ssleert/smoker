@@ -164,26 +164,20 @@ const get = async () => {
 
       const primaryKey = ["comment", "ulid", c.ulid];
       const postKey = ["post", "ulid", c.postUlid];
-      const postCommentsKey = ["post", "comments", "ulid", c.postUlid];
+      const postCommentKey = ["post", "comments", "ulid", c.postUlid, c.ulid];
 
       const p = await kv.get<Post>(postKey);
       if (p.value == null) {
         return null;
       }
 
-      const postComments = await kv.get<Comment[]>(postCommentsKey);
-
-      const comments = postComments.value ?? [];
-      comments.push(c);
-
-      p.value.comments = comments.length;
+      p.value.comments += 1;
 
       const res = await kv.atomic()
         .check(p)
-        .check(postComments)
         .set(postKey, p.value)
         .set(primaryKey, c)
-        .set(postCommentsKey, comments)
+        .set(postCommentKey, c)
         .commit();
 
       return res.ok;
@@ -191,8 +185,14 @@ const get = async () => {
 
     async getComments(postUlid: string) {
       const postCommentsKey = ["post", "comments", "ulid", postUlid];
-      const res = await kv.get<Comment[]>(postCommentsKey);
-      return res.value;
+
+      const comments: Comment[] = [];
+      const iter = kv.list<Comment>({ prefix: postCommentsKey });
+      for await (const res of iter) {
+        comments.push(res.value);
+      }
+
+      return comments;
     },
   };
 };
