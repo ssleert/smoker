@@ -5,7 +5,11 @@ import getDb from "@root/server/db/mod.ts";
 import { jwt } from "hono/jwt";
 import { ulid } from "@std/ulid";
 import { tbValidator } from "@hono/typebox-validator";
-import { CommentDTOSchema, PostDTOSchema, VoteDTOSchema } from "@root/server/dto/mod.ts";
+import {
+  CommentDTOSchema,
+  PostDTOSchema,
+  VoteDTOSchema,
+} from "@root/server/dto/mod.ts";
 import { commentsArrayToGraph } from "@root/server/utils/conversions.ts";
 
 const app = new Hono<{ Variables: Variables }>();
@@ -104,17 +108,17 @@ app.delete(
 );
 
 app.post(
-  "/comment/:ulid", 
+  "/comment/:ulid",
   jwt({ secret: config.jwtSecret }),
   tbValidator("form", CommentDTOSchema),
   async (c) => {
-    const { ulid: postUlid } = c.req.param()
+    const { ulid: postUlid } = c.req.param();
     const { ulid: userUlid } = c.get("jwtPayload");
 
     const input = c.req.valid("form");
-    
-    const db = await getDb()
-    
+
+    const db = await getDb();
+
     const _ulid = ulid();
     const ok = await db.addComment({
       ulid: _ulid,
@@ -125,37 +129,37 @@ app.post(
       date: new Date(),
       votes: 0,
       replyes: 0,
-      replyUlid: input.reply
-    })
+      replyUlid: input.reply,
+    });
     if (ok == null) {
-      return c.notFound()
+      return c.notFound();
     }
     if (ok == false) {
       return c.text("comment transaction failed", 503, { "Retry-After": "1" });
     }
 
-    return c.text(_ulid)
-  }
-)
+    return c.text(_ulid);
+  },
+);
 
 app.get(
-  "/comments/:ulid", 
+  "/comments/:ulid",
   async (c) => {
-    const { ulid: postUlid } = c.req.param()
-    
-    const db = await getDb()
-    
-    const comments = await db.getComments(postUlid)
+    const { ulid: postUlid } = c.req.param();
+
+    const db = await getDb();
+
+    const comments = await db.getComments(postUlid);
     if (comments == null) {
-      return c.notFound()
+      return c.notFound();
     }
 
     if (comments.length == 0) {
-      return c.body(null, 204)
+      return c.body(null, 204);
     }
-    
-    const commentsGraph = await commentsArrayToGraph(comments)
-    
-    return c.json(commentsGraph)
-  }
-)
+
+    const commentsGraph = await commentsArrayToGraph(comments);
+
+    return c.json(commentsGraph);
+  },
+);

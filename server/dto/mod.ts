@@ -1,5 +1,9 @@
 import { Static, Type as T } from "@sinclair/typebox";
-import { CommentFormatSchema, PostFormatSchema, PostVoteTypeSchema } from "@root/server/db/model.ts";
+import {
+  CommentFormatSchema,
+  PostFormatSchema,
+  PostVoteTypeSchema,
+} from "@root/server/db/model.ts";
 
 export const UserDTOSchema = T.Object({
   username: T.String(),
@@ -30,7 +34,7 @@ export const VoteDTOSchema = T.Object({
 export const CommentDTOSchema = T.Object({
   text: T.String(),
   format: CommentFormatSchema,
-  reply: T.Optional(T.String())
+  reply: T.Optional(T.String()),
 });
 
 export type UserDTO = Static<typeof UserDTOSchema>;

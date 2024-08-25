@@ -1,6 +1,6 @@
 import config from "@root/server/config/mod.ts";
 import {
-Comment,
+  Comment,
   CommentSchemaC,
   Post,
   PostSchemaC,
@@ -11,14 +11,14 @@ Comment,
   UserPost,
   UserSchemaC,
 } from "@root/server/db/model.ts";
-import {assert} from "@std/assert"
+import { assert } from "@std/assert";
 
 const get = async () => {
   const kv = await Deno.openKv(config.kvUrl);
 
   return {
     async addUser(u: User) {
-      assert(UserSchemaC.Check(u), "validation error")
+      assert(UserSchemaC.Check(u), "validation error");
 
       const primaryKey = ["user", "ulid", u.ulid];
       const byEmailKey = ["user", "email", u.email];
@@ -49,7 +49,7 @@ const get = async () => {
     },
 
     async addPost(p: Post) {
-      assert(PostSchemaC.Check(p), "validation error")
+      assert(PostSchemaC.Check(p), "validation error");
 
       const key = ["post", "ulid", p.ulid];
 
@@ -99,7 +99,7 @@ const get = async () => {
     },
 
     async votePost(userUlid: string, postUlid: string, voteType: PostVoteType) {
-      assert(PostVoteSchemaC.Check(voteType), "validation error")
+      assert(PostVoteSchemaC.Check(voteType), "validation error");
 
       const key = ["post", "vote", userUlid, postUlid];
       const postKey = ["post", "ulid", postUlid];
@@ -143,40 +143,40 @@ const get = async () => {
     },
 
     async addComment(c: Comment) {
-      assert(CommentSchemaC.Check(c), "validation error")
-      
-      const primaryKey = ["comment", "ulid", c.ulid]
-      const postKey = ["post", "ulid", c.postUlid]
-      const postCommentsKey = ["post", "comments", "ulid", c.postUlid]
- 
-      const p = await kv.get<Post>(postKey)
+      assert(CommentSchemaC.Check(c), "validation error");
+
+      const primaryKey = ["comment", "ulid", c.ulid];
+      const postKey = ["post", "ulid", c.postUlid];
+      const postCommentsKey = ["post", "comments", "ulid", c.postUlid];
+
+      const p = await kv.get<Post>(postKey);
       if (p.value == null) {
-        return null
-      } 
+        return null;
+      }
 
-      const postComments = await kv.get<Comment[]>(postCommentsKey)
+      const postComments = await kv.get<Comment[]>(postCommentsKey);
 
-      const comments = postComments.value ?? []
-      comments.push(c)
+      const comments = postComments.value ?? [];
+      comments.push(c);
 
-      p.value.comments = comments.length
-      
+      p.value.comments = comments.length;
+
       const res = await kv.atomic()
         .check(p)
         .check(postComments)
         .set(postKey, p.value)
         .set(primaryKey, c)
         .set(postCommentsKey, comments)
-        .commit()
+        .commit();
 
-      return res.ok
+      return res.ok;
     },
-    
-    async getComments(postUlid: string) { 
-      const postCommentsKey = ["post", "comments", "ulid", postUlid]
-      const res = await kv.get<Comment[]>(postCommentsKey)
-      return res.value
-    }
+
+    async getComments(postUlid: string) {
+      const postCommentsKey = ["post", "comments", "ulid", postUlid];
+      const res = await kv.get<Comment[]>(postCommentsKey);
+      return res.value;
+    },
   };
 };
 
