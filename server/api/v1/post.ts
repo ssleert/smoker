@@ -158,8 +158,11 @@ app.get(
       return c.body(null, 204);
     }
 
+    const userUlids = comments.map((c) => c.userUlid);
+    const users = await db.getUserAvatarAndUsername(userUlids);
+
     const commentsGraph = await commentsArrayToGraph(comments);
 
-    return c.json(commentsGraph);
+    return c.json({ comments: commentsGraph, users });
   },
 );

@@ -4,7 +4,7 @@ import { schedule } from "@root/server/utils/mod.ts";
 
 type CommentsGraphNode = {
   comment: Comment;
-  replyesList: CommentsGraphNode[];
+  replyesList?: CommentsGraphNode[];
 };
 
 export const commentsArrayToGraph = async (comments: Comment[]) => {
@@ -25,11 +25,9 @@ export const commentsArrayToGraph = async (comments: Comment[]) => {
       }
       commentUsed[comment.ulid] = true;
 
-      const newNode = {
-        comment: comment,
-        replyesList: [],
-      };
+      const newNode = { comment: comment };
       fullFillGraphNode(newNode);
+      node.replyesList ??= [];
       node.replyesList.push(newNode);
 
       await schedule();
@@ -41,10 +39,7 @@ export const commentsArrayToGraph = async (comments: Comment[]) => {
       continue;
     }
 
-    const node = {
-      comment: comment,
-      replyesList: [],
-    };
+    const node = { comment: comment };
     await fullFillGraphNode(node);
     commentsGraph.push(node);
   }

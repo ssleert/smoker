@@ -48,6 +48,25 @@ const get = async () => {
       return u.value;
     },
 
+    async getUserAvatarAndUsername(ulids: string[]) {
+      const keys = ulids.map((u) => ["user", "ulid", u]);
+      const res = await kv.getMany<User[]>(keys);
+
+      const users: Record<string, {
+        username: string;
+        avatar: string;
+      }> = {};
+
+      res.filter((u) => u.value != null).forEach((u) =>
+        users[u.value.ulid] = {
+          username: u.value.username,
+          avatar: u.value.avatar,
+        }
+      );
+
+      return users;
+    },
+
     async addPost(p: Post) {
       assert(PostSchemaC.Check(p), "validation error");
 
@@ -71,7 +90,6 @@ const get = async () => {
       const start = ["post", "ulid", lastUlid];
 
       const posts: Post[] = [];
-      const users: Record<string, UserPost> = {};
 
       const iter = await kv.list<Post>({ prefix, start }, {
         limit: 15,
@@ -83,13 +101,12 @@ const get = async () => {
         if (u.value == null) {
           continue;
         }
-
-        users[userUlid] = {
-          username: u.value.username,
-          avatar: u.value.avatar,
-        };
         posts.push(res.value);
       }
+
+      const users = await this.getUserAvatarAndUsername(
+        posts.map((p) => p.userUlid),
+      );
 
       return { posts, users };
     },
