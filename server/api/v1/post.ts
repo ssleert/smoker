@@ -41,7 +41,7 @@ app.post(
   },
 );
 
-app.get("/by_ulid/:ulid", async (c) => {
+app.get("/:ulid", async (c) => {
   const { ulid } = c.req.param();
 
   const db = await getDb();

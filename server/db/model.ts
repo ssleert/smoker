@@ -4,10 +4,19 @@ import { TypeCompiler } from "@sinclair/typebox/compiler";
 export const UserSchema = T.Object({
   ulid: T.String(),
   username: T.String(),
+  name: T.String(),
+  surname: T.String(),
   email: T.String(),
   avatar: T.String(),
   passwordHash: T.String(),
   date: T.Date(),
+  subscribers: T.Number(),
+  friends: T.Number(),
+  karma: T.Number(),
+  comments: T.Number(),
+  posts: T.Number(),
+  commentsCreated: T.Number(),
+  about: T.String(),
 });
 export const UserSchemaC = TypeCompiler.Compile(UserSchema);
 

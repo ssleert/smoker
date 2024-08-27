@@ -21,10 +21,19 @@ app.post(
     const u = {
       ulid: _ulid,
       username: user.username,
+      name: "",
+      surname: "",
       email: user.email,
       passwordHash: await hashPassword(user.password),
       avatar: "__default_avatar__",
       date: new Date(),
+      subscribers: 0,
+      friends: 0,
+      karma: 0,
+      comments: 0,
+      posts: 0,
+      commentsCreated: 0,
+      about: "not smoking yet.",
     };
 
     const ok = await db.addUser(u);
@@ -64,15 +73,15 @@ app.post(
 );
 
 app.get("/:username", async (c) => {
-  const { username } = c.req.param()
+  const { username } = c.req.param();
   const db = await getDb();
-  
-  const info = await db.getUserPublicInfo(username)
+
+  const info = await db.getUserPublicInfo(username);
   if (info == null) {
-    return c.notFound()
+    return c.notFound();
   }
 
-  return c.json(info)
-})
+  return c.json(info);
+});
 
 export default app;

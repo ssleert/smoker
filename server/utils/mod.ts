@@ -1,7 +1,7 @@
 import { encodeHex } from "@std/encoding/hex";
 import config from "@root/server/config/mod.ts";
 
-export const itersForChunk = 100
+export const itersForChunk = 100;
 export const schedule = () => new Promise((resolve) => setTimeout(resolve));
 
 export const hashPassword = async (password: string) => {
