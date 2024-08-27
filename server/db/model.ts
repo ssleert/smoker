@@ -9,11 +9,13 @@ export const UserSchema = T.Object({
   passwordHash: T.String(),
   date: T.Date(),
 });
+export const UserSchemaC = TypeCompiler.Compile(UserSchema);
 
 export const PostFormatSchema = T.Union([
   T.TemplateLiteral("text"),
   T.TemplateLiteral("markdown"),
 ]);
+export const PostFormatSchemaC = TypeCompiler.Compile(PostFormatSchema);
 
 export const PostSchema = T.Object({
   ulid: T.String(),
@@ -25,27 +27,33 @@ export const PostSchema = T.Object({
   votes: T.Number(),
   comments: T.Number(),
 });
+export const PostSchemaC = TypeCompiler.Compile(PostSchema);
 
 export const UserPostSchema = T.Object({
   username: T.String(),
   avatar: T.String(),
 });
+export const UserPostSchemaC = TypeCompiler.Compile(UserPostSchema);
 
 export const PostVoteTypeSchema = T.Union([
   T.TemplateLiteral("up"),
   T.TemplateLiteral("down"),
 ]);
+export const PostVoteTypeSchemaC = TypeCompiler.Compile(PostVoteTypeSchema);
+
 export const PostVoteSchema = T.Object({
   userUlid: T.String(),
   postUlid: T.String(),
   date: T.Date(),
   type: PostVoteTypeSchema,
 });
+export const PostVoteSchemaC = TypeCompiler.Compile(PostVoteSchema);
 
 export const CommentFormatSchema = T.Union([
   T.TemplateLiteral("text"),
   T.TemplateLiteral("markdown"),
 ]);
+export const CommentFormatSchemaC = TypeCompiler.Compile(CommentFormatSchema);
 
 export const CommentSchema = T.Object({
   ulid: T.String(),
@@ -58,14 +66,23 @@ export const CommentSchema = T.Object({
   replyes: T.Number(),
   replyUlid: T.Optional(T.String()),
 });
-
-export const UserSchemaC = TypeCompiler.Compile(UserSchema);
-export const PostFormatSchemaC = TypeCompiler.Compile(PostFormatSchema);
-export const PostSchemaC = TypeCompiler.Compile(PostSchema);
-export const UserPostSchemaC = TypeCompiler.Compile(UserPostSchema);
-export const PostVoteSchemaC = TypeCompiler.Compile(PostVoteSchema);
-export const CommentFormatSchemaC = TypeCompiler.Compile(CommentFormatSchema);
 export const CommentSchemaC = TypeCompiler.Compile(CommentSchema);
+
+export const CommentVoteTypeSchema = T.Union([
+  T.TemplateLiteral("up"),
+  T.TemplateLiteral("down"),
+]);
+export const CommentVoteTypeSchemaC = TypeCompiler.Compile(
+  CommentVoteTypeSchema,
+);
+
+export const CommentVoteSchema = T.Object({
+  userUlid: T.String(),
+  postUlid: T.String(),
+  date: T.Date(),
+  type: CommentVoteTypeSchema,
+});
+export const CommentVoteSchemaC = TypeCompiler.Compile(CommentVoteSchema);
 
 export type User = Static<typeof UserSchema>;
 export type PostFormat = Static<typeof PostFormatSchema>;
@@ -75,3 +92,5 @@ export type PostVoteType = Static<typeof PostVoteTypeSchema>;
 export type PostVote = Static<typeof PostVoteSchema>;
 export type CommentFormat = Static<typeof CommentFormatSchema>;
 export type Comment = Static<typeof CommentSchema>;
+export type CommentVoteType = Static<typeof CommentVoteTypeSchema>;
+export type CommentVote = Static<typeof CommentVoteSchema>;

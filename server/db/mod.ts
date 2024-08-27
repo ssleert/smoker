@@ -2,16 +2,25 @@ import config from "@root/server/config/mod.ts";
 import {
   Comment,
   CommentSchemaC,
+  CommentVote,
+  CommentVoteType,
+  CommentVoteTypeSchemaC,
   Post,
   PostSchemaC,
   PostVote,
-  PostVoteSchemaC,
   PostVoteType,
+  PostVoteTypeSchemaC,
   User,
-  UserPost,
   UserSchemaC,
 } from "@root/server/db/model.ts";
 import { assert } from "@std/assert";
+
+type VoteCommentArgs = {
+  userUlid: string;
+  postUlid: string;
+  commentUlid: string;
+  voteType: CommentVoteType;
+};
 
 const get = async () => {
   const kv = await Deno.openKv(config.kvUrl);
@@ -116,7 +125,7 @@ const get = async () => {
     },
 
     async votePost(userUlid: string, postUlid: string, voteType: PostVoteType) {
-      assert(PostVoteSchemaC.Check(voteType), "validation error");
+      assert(PostVoteTypeSchemaC.Check(voteType), "validation error");
 
       const key = ["post", "vote", userUlid, postUlid];
       const postKey = ["post", "ulid", postUlid];
@@ -159,12 +168,61 @@ const get = async () => {
       return res.ok;
     },
 
+    async voteComment(args: VoteCommentArgs) {
+      const {
+        userUlid,
+        commentUlid,
+        postUlid,
+        voteType,
+      } = args;
+      assert(CommentVoteTypeSchemaC.Check(voteType), "validation error");
+
+      const key = ["comment", "vote", userUlid, postUlid, commentUlid];
+      const commentKey = ["post", "comments", "ulid", postUlid, commentUlid];
+
+      const c = await kv.get<Comment>(commentKey);
+      if (c.value == null) {
+        return null;
+      }
+
+      const vote = await kv.get<CommentVote>(key);
+      if (vote.value?.type == voteType) {
+        return true;
+      }
+
+      let votesAppend = 1;
+      if (vote.value != null) {
+        if (vote.value.type != voteType) {
+          votesAppend += 1;
+        }
+      }
+      if (voteType == "down") {
+        votesAppend = -votesAppend;
+      }
+
+      const newVote: CommentVote = {
+        date: new Date(),
+        postUlid: postUlid,
+        userUlid: userUlid,
+        type: voteType,
+      };
+
+      c.value.votes += votesAppend;
+
+      const res = await kv.atomic()
+        .check(vote)
+        .set(key, newVote)
+        .set(commentKey, c.value)
+        .commit();
+
+      return res.ok;
+    },
+
     async addComment(c: Comment) {
       assert(CommentSchemaC.Check(c), "validation error");
 
-      const primaryKey = ["comment", "ulid", c.ulid];
+      const primaryKey = ["post", "comments", "ulid", c.postUlid, c.ulid];
       const postKey = ["post", "ulid", c.postUlid];
-      const postCommentKey = ["post", "comments", "ulid", c.postUlid, c.ulid];
 
       const p = await kv.get<Post>(postKey);
       if (p.value == null) {
@@ -177,7 +235,6 @@ const get = async () => {
         .check(p)
         .set(postKey, p.value)
         .set(primaryKey, c)
-        .set(postCommentKey, c)
         .commit();
 
       return res.ok;
