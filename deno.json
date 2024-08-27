@@ -10,8 +10,10 @@
     "hono": "npm:hono@^4.5.5"
   },
   "tasks": {
-    "start": "deno run --unstable-cron --unstable-kv --unstable-hmr --allow-net --allow-env --env=.env --allow-read=./db --allow-write=./db main.ts"
+    "start": "mkdir -p db/ && deno run --unstable-hmr --allow-net --allow-env --env=.env --allow-read=./db --allow-write=./db main.ts",
+    "verify": "deno check main.ts && deno lint && deno fmt"
   },
+  "unstable": ["kv"],
   "compilerOptions": {
     "jsx": "precompile",
     "jsxImportSource": "hono/jsx"

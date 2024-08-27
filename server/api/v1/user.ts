@@ -40,8 +40,9 @@ app.post(
   "/login",
   tbValidator("form", CredentialsDTOSchema),
   async (c) => {
-    const db = await getDb();
     const creds = c.req.valid("form");
+
+    const db = await getDb();
 
     const u = await db.getUserByEmail(creds.email);
     if (u == null) {
@@ -61,5 +62,17 @@ app.post(
     return c.text(token);
   },
 );
+
+app.get("/:username", async (c) => {
+  const { username } = c.req.param()
+  const db = await getDb();
+  
+  const info = await db.getUserPublicInfo(username)
+  if (info == null) {
+    return c.notFound()
+  }
+
+  return c.json(info)
+})
 
 export default app;

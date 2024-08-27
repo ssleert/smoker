@@ -57,14 +57,57 @@ const get = async () => {
       return u.value;
     },
 
+    async getUserPosts(ulid: string, startKey: string) {
+      const postsUlids = [] as string[][]
+
+      const prefix = ["user", "post", ulid]
+      const start = ["user", "post", ulid, startKey]
+
+      const postIter = kv.list<string>({ prefix, start}, {
+        limit: 15,
+        reverse: true,
+      });
+      for await (const postUlid of postIter) {
+        postsUlids.push(["post", "ulid", postUlid.value])
+      }
+      
+      const postsData = await kv.getMany<Post[]>(postsUlids)
+      
+      const posts = postsData.filter(p => p.value != null).map(p => p.value) 
+      return posts
+    },
+
+    async getUserPublicInfo(username: string) {
+      const ulidKey = await kv.get<string>(["user", "username", username])
+      if (ulidKey.value == null) {
+        return null
+      }
+      
+      const key = ["user", "ulid", ulidKey.value]
+      const u = await kv.get<User>(key)
+      if (u.value == null) {
+        return null
+      }
+      
+      const posts = await this.getUserPosts(u.value.ulid, "0")
+      
+      return {
+        ulid: u.value.ulid,
+        username: u.value.username,
+        avatar: u.value.avatar,
+        date: u.value.date,
+        posts: posts
+      }
+    },
+
     async getUserAvatarAndUsername(ulids: string[]) {
       const keys = ulids.map((u) => ["user", "ulid", u]);
       const res = await kv.getMany<User[]>(keys);
 
-      const users: Record<string, {
+      const users = {} as Record<string, {
         username: string;
         avatar: string;
-      }> = {};
+      }>;
 
       res.filter((u) => u.value != null).forEach((u) =>
         users[u.value.ulid] = {
@@ -80,10 +123,12 @@ const get = async () => {
       assert(PostSchemaC.Check(p), "validation error");
 
       const key = ["post", "ulid", p.ulid];
+      const byUserKey = ["user", "post", p.userUlid, p.ulid]
 
       const res = await kv.atomic()
         .check({ key, versionstamp: null })
         .set(key, p)
+        .set(byUserKey, p.ulid)
         .commit();
 
       return res.ok as boolean;
@@ -100,7 +145,7 @@ const get = async () => {
 
       const posts: Post[] = [];
 
-      const iter = await kv.list<Post>({ prefix, start }, {
+      const iter = kv.list<Post>({ prefix, start }, {
         limit: 15,
         reverse: true,
       });
@@ -218,6 +263,26 @@ const get = async () => {
       return res.ok;
     },
 
+    async replyComment(postUlid: string, replyUlid?: string) {
+      if (!replyUlid) {
+        return null;
+      }
+
+      const replyKey = ["post", "comments", "ulid", postUlid, replyUlid];
+
+      const res = await kv.get<Comment>(replyKey);
+      if (res.value == null) {
+        return null;
+      }
+
+      res.value.replyes += 1;
+
+      return {
+        c: res,
+        key: replyKey,
+      };
+    },
+
     async addComment(c: Comment) {
       assert(CommentSchemaC.Check(c), "validation error");
 
@@ -231,28 +296,12 @@ const get = async () => {
 
       p.value.comments += 1;
 
-      let reply: {
-        c: Deno.KvEntry<Comment>;
-        key: string[];
-      } | null = null;
-
-      if (c.replyUlid) {
-        const replyKey = ["post", "comments", "ulid", c.postUlid, c.replyUlid];
-        const res = await kv.get<Comment>(replyKey);
-        if (res.value == null) {
-          return null;
-        }
-        res.value.replyes += 1;
-        reply = {
-          c: res,
-          key: replyKey,
-        };
-      }
+      const reply = await this.replyComment(c.postUlid, c.replyUlid);
 
       let tx = kv.atomic()
         .check(p)
-        .set(postKey, p.value)
-        .set(primaryKey, c);
+        .set(primaryKey, c)
+        .set(postKey, p.value);
 
       if (reply != null) {
         tx = tx.check(reply.c)
