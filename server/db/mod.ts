@@ -231,11 +231,35 @@ const get = async () => {
 
       p.value.comments += 1;
 
-      const res = await kv.atomic()
+      let reply: {
+        c: Deno.KvEntry<Comment>;
+        key: string[];
+      } | null = null;
+
+      if (c.replyUlid) {
+        const replyKey = ["post", "comments", "ulid", c.postUlid, c.replyUlid];
+        const res = await kv.get<Comment>(replyKey);
+        if (res.value == null) {
+          return null;
+        }
+        res.value.replyes += 1;
+        reply = {
+          c: res,
+          key: replyKey,
+        };
+      }
+
+      let tx = kv.atomic()
         .check(p)
         .set(postKey, p.value)
-        .set(primaryKey, c)
-        .commit();
+        .set(primaryKey, c);
+
+      if (reply != null) {
+        tx = tx.check(reply.c)
+          .set(reply.key, reply.c.value);
+      }
+
+      const res = await tx.commit();
 
       return res.ok;
     },
