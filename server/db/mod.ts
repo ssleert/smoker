@@ -167,7 +167,33 @@ const get = async () => {
     },
 
     async delPostVote(userUlid: string, postUlid: string) {
-      await kv.delete(["post", "vote", userUlid, postUlid]);
+      const key = ["post", "vote", userUlid, postUlid];
+      const postKey = ["post", "ulid", postUlid];
+
+      const p = await kv.get<Post>(postKey);
+      if (p.value == null) {
+        return null;
+      }
+
+      const v = await kv.get<PostVote>(key);
+      if (v.value == null) {
+        return null;
+      }
+
+      if (v.value.type == "up") {
+        p.value.votes -= 1;
+      } else {
+        p.value.votes += 1;
+      }
+
+      const res = await kv.atomic()
+        .check(p)
+        .check(v)
+        .delete(key)
+        .set(postKey, p.value)
+        .commit();
+
+      return res.ok as boolean;
     },
 
     async votePost(userUlid: string, postUlid: string, voteType: PostVoteType) {

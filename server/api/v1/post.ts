@@ -62,8 +62,6 @@ app.get("/feed/:lastUlid", async (c) => {
   return c.json(feed);
 });
 
-export default app;
-
 app.put(
   "/vote/:ulid",
   jwt({ secret: config.jwtSecret }),
@@ -96,8 +94,19 @@ app.delete(
 
     const db = await getDb();
 
-    await db.delPostVote(postUlid, userUlid);
+    const ok = await db.delPostVote(userUlid, postUlid);
+    if (ok == null) {
+      return c.notFound();
+    }
+
+    if (ok == false) {
+      return c.text("vote delete transaction failed", 503, {
+        "Retry-After": "1",
+      });
+    }
 
     return c.body(null, 204);
   },
 );
+
+export default app;

@@ -1,5 +1,6 @@
 import { encodeHex } from "@std/encoding/hex";
 import config from "@root/server/config/mod.ts";
+import { cache } from "hono/cache";
 
 export const itersForChunk = 100;
 export const schedule = () => new Promise((resolve) => setTimeout(resolve));
@@ -17,6 +18,13 @@ export const genJwtPayload = (ulid: string, username: string) => {
     exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // month
   };
 };
+
+export const getCacheMiddleware = () =>
+  cache({
+    cacheName: "smoke-that-shit",
+    cacheControl: "max-age=30",
+    wait: true,
+  });
 
 export type JwtPayload = ReturnType<typeof genJwtPayload>;
 export type Variables = {

@@ -10,6 +10,7 @@
       "jsr:@std/ulid@^1.0.0": "jsr:@std/ulid@1.0.0",
       "npm:@hono/typebox-validator@^0.2.4": "npm:@hono/typebox-validator@0.2.4_@sinclair+typebox@0.33.4_hono@4.5.5",
       "npm:@sinclair/typebox@^0.33.4": "npm:@sinclair/typebox@0.33.4",
+      "npm:hono-rate-limiter@^0.4.0": "npm:hono-rate-limiter@0.4.0_hono@4.5.5",
       "npm:hono@^4.5.5": "npm:hono@4.5.5"
     },
     "jsr": {
@@ -44,6 +45,12 @@
         "integrity": "sha512-IUMFWdOtTqJ5F/rCjy2f3InRS9i4EWaCAMRsXVpUUQVi8hVByz/ifOi41Qt0Law8lz01/6zTz67vT70sB1VZbw==",
         "dependencies": {}
       },
+      "hono-rate-limiter@0.4.0_hono@4.5.5": {
+        "integrity": "sha512-7RWU2HZvxPtfBrvjXKDiQ3F6ZH8k49JhxVkHquUz5UZKjauj5PrP29MvISykThtfpy4mGG6kqxFBHW1ed9wwnA==",
+        "dependencies": {
+          "hono": "hono@4.5.5"
+        }
+      },
       "hono@4.5.5": {
         "integrity": "sha512-fXBXHqaVfimWofbelLXci8pZyIwBMkDIwCa4OwZvK+xVbEyYLELVP4DfbGaj1aEM6ZY3hHgs4qLvCO2ChkhgQw==",
         "dependencies": {}
@@ -59,6 +66,7 @@
       "jsr:@std/ulid@^1.0.0",
       "npm:@hono/typebox-validator@^0.2.4",
       "npm:@sinclair/typebox@^0.33.4",
+      "npm:hono-rate-limiter@^0.4.0",
       "npm:hono@^4.5.5"
     ]
   }
